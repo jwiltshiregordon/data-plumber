@@ -1,0 +1,380 @@
+Parameters:
+  BackendContainerImage:
+    Type: String
+    Description: The URL of the backend image
+
+  NginxContainerImage:
+    Type: String
+    Description: The URL of the frontend image
+
+
+Resources:
+  VPC:
+    Type: 'AWS::EC2::VPC'
+    Properties:
+      CidrBlock: '10.0.0.0/16'
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+
+  Subnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      CidrBlock: '10.0.3.0/24'
+      AvailabilityZone: 'us-east-1a'
+
+  Subnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      CidrBlock: '10.0.4.0/24'
+      AvailabilityZone: 'us-east-1b'
+
+  SecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Security Group for ECS tasks'
+      VpcId:
+        Ref: 'VPC'
+      SecurityGroupEgress:
+        - CidrIp: '0.0.0.0/0'
+          IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+
+  EndpointSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: 'Security Group for AWS Endpoints'
+      VpcId:
+        Ref: 'VPC'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          SourceSecurityGroupId:
+            Ref: 'SecurityGroup'
+
+  ECSCluster:
+    Type: 'AWS::ECS::Cluster'
+    Properties:
+      ClusterName: 'data-plumber-cluster'
+
+  ECSTaskDefinition:
+    Type: 'AWS::ECS::TaskDefinition'
+    Properties:
+      Family: 'data-plumber-task'
+      Cpu: '1024'
+      Memory: '2048'
+      NetworkMode: 'awsvpc'
+      RequiresCompatibilities:
+        - 'FARGATE'
+      ExecutionRoleArn:
+        'Fn::GetAtt':
+          - 'TaskExecutionRole'
+          - 'Arn'
+      TaskRoleArn:
+        'Fn::GetAtt':
+          - 'TaskRole'
+          - 'Arn'
+      ContainerDefinitions:
+        - Name: 'backend'
+          Image: !Ref BackendContainerImage
+          Environment:
+            - Name: DEBUG
+              Value: 'False'
+            - Name: AWS_REGION_NAME
+              Value: 'us-east-1'
+          LogConfiguration:
+            LogDriver: 'awslogs'
+            Options:
+              awslogs-group: '/ecs/data-plumber-service'
+              awslogs-region: 'us-east-1'
+              awslogs-stream-prefix: 'ecs'
+        - Name: 'nginx'
+          Image: !Ref NginxContainerImage
+          LogConfiguration:
+            LogDriver: 'awslogs'
+            Options:
+              awslogs-group: '/ecs/data-plumber-service'
+              awslogs-region: 'us-east-1'
+              awslogs-stream-prefix: 'ecs'
+          DependsOn:
+            - ContainerName: 'backend'
+              Condition: 'START'
+          PortMappings:
+            - ContainerPort: 80
+
+  TaskRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'ecs-tasks.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+
+  TaskRolePolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: 'SecretAccessPolicy'
+      Roles:
+        - Ref: 'TaskRole'
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Action:
+              - 'secretsmanager:GetSecretValue'
+            Resource: 'arn:aws:secretsmanager:us-east-1:124531448542:secret:DATA_PLUMBER_DJANGO_SECRET-hsh8jS'
+
+  TaskExecutionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: 'Allow'
+            Principal:
+              Service:
+                - 'ecs-tasks.amazonaws.com'
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
+        - 'arn:aws:iam::aws:policy/CloudWatchFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSSMFullAccess'
+
+  LogGroup:
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: '/ecs/data-plumber-service'
+      RetentionInDays: 365
+
+  ECSService:
+    Type: 'AWS::ECS::Service'
+    DependsOn:
+      - 'ALB'
+      - 'ALBListener'
+      - 'SecretsManagerEndpoint'
+    Properties:
+      ServiceName: 'data-plumber-service'
+      Cluster:
+        Ref: 'ECSCluster'
+      LaunchType: 'FARGATE'
+      DesiredCount: 1
+      TaskDefinition:
+        Ref: 'ECSTaskDefinition'
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: 'DISABLED'
+          Subnets:
+            - Ref: 'Subnet1'
+            - Ref: 'Subnet2'
+          SecurityGroups:
+            - Ref: 'SecurityGroup'
+      LoadBalancers:
+        - TargetGroupArn:
+            Ref: 'ALBTargetGroup'
+          ContainerName: 'nginx'
+          ContainerPort: 80
+
+  InternetGateway:
+    Type: "AWS::EC2::InternetGateway"
+
+  AttachGateway:
+    Type: "AWS::EC2::VPCGatewayAttachment"
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      InternetGatewayId:
+        Ref: 'InternetGateway'
+
+  RouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+
+  Route:
+    Type: "AWS::EC2::Route"
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId:
+        Ref: 'RouteTable'
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId:
+        Ref: 'InternetGateway'
+
+  SubnetRouteTableAssociation1:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: 'Subnet1'
+      RouteTableId:
+        Ref: 'RouteTable'
+
+  SubnetRouteTableAssociation2:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      SubnetId:
+        Ref: 'Subnet2'
+      RouteTableId:
+        Ref: 'RouteTable'
+
+  ALBSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security Group for the ALB
+      VpcId:
+        Ref: 'VPC'
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: '0.0.0.0/0'
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: '0.0.0.0/0'
+
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: AttachGateway
+    Properties:
+      Subnets:
+        - Ref: 'Subnet1'
+        - Ref: 'Subnet2'
+      SecurityGroups:
+        - Ref: 'ALBSecurityGroup'
+      Scheme: internet-facing
+      Type: application
+
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn:
+            Ref: 'ALBTargetGroup'
+      LoadBalancerArn:
+        Ref: 'ALB'
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn: arn:aws:acm:us-east-1:124531448542:certificate/fa3695b8-26bd-419d-94af-c93ed1c0a385
+
+  ALBTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      Port: 80
+      Protocol: HTTP
+      TargetType: ip
+      HealthCheckEnabled: true
+      HealthCheckPath: '/health'
+      HealthCheckProtocol: HTTP
+      HealthCheckIntervalSeconds: 30
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      UnhealthyThresholdCount: 2
+      Matcher:
+        HttpCode: '200'
+
+  ECREndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      ServiceName: 'com.amazonaws.us-east-1.ecr.dkr'
+      VpcEndpointType: 'Interface'
+      SubnetIds:
+        - Ref: 'Subnet1'
+        - Ref: 'Subnet2'
+      SecurityGroupIds:
+        - Ref: 'EndpointSecurityGroup'
+      PrivateDnsEnabled: true
+
+  ECRApiEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      ServiceName: 'com.amazonaws.us-east-1.ecr.api'
+      VpcEndpointType: 'Interface'
+      SubnetIds:
+        - Ref: 'Subnet1'
+        - Ref: 'Subnet2'
+      SecurityGroupIds:
+        - Ref: 'EndpointSecurityGroup'
+      PrivateDnsEnabled: true
+
+  S3Endpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      ServiceName: 'com.amazonaws.us-east-1.s3'
+      RouteTableIds:
+        - Ref: 'RouteTable'
+
+  CloudWatchEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      ServiceName: 'com.amazonaws.us-east-1.logs'
+      VpcEndpointType: 'Interface'
+      SubnetIds:
+        - Ref: 'Subnet1'
+        - Ref: 'Subnet2'
+      SecurityGroupIds:
+        - Ref: 'EndpointSecurityGroup'
+      PrivateDnsEnabled: true
+
+  SecretsManagerEndpoint:
+    Type: 'AWS::EC2::VPCEndpoint'
+    Properties:
+      VpcId:
+        Ref: 'VPC'
+      ServiceName: 'com.amazonaws.us-east-1.secretsmanager'
+      VpcEndpointType: 'Interface'
+      SubnetIds:
+        - Ref: 'Subnet1'
+        - Ref: 'Subnet2'
+      SecurityGroupIds:
+        - Ref: 'EndpointSecurityGroup'
+      PrivateDnsEnabled: true
+
+  MyHostedZone:
+    Type: 'AWS::Route53::HostedZone'
+    Properties:
+      Name: 'dataplumber.app.'
+      HostedZoneConfig:
+        Comment: 'Hosted zone for your domain'
+
+  ALBAliasRecord:
+    Type: 'AWS::Route53::RecordSet'
+    Properties:
+      HostedZoneId:
+        Ref: 'MyHostedZone'
+      Name: 'dataplumber.app.'
+      Type: 'A'
+      AliasTarget:
+        DNSName:
+          Fn::GetAtt: ['ALB', 'DNSName']
+        HostedZoneId:
+          Fn::GetAtt: ['ALB', 'CanonicalHostedZoneID']
+        EvaluateTargetHealth: false

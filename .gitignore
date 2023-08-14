@@ -1,0 +1,24 @@
+.DS_Store
+deploy.sh
+
+frontend/dist/
+frontend/pyodide
+frontend/staticfiles
+frontend/node_modules/
+
+backend/webpack-stats.json
+backend/db.sqlite3
+backend/.python-version
+
+.env
+
+# Editor directories and files
+.idea
+.vscode
+
+venv/
+*.pyc
+*/__pycache__/*
+
+backend/staticfiles
+generated_parser.py

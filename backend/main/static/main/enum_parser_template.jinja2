@@ -1,0 +1,16 @@
+from enum import Enum
+
+class {{ enum_class_name }}(Enum):{% for identifier, option in identifiers %}
+    {{ identifier }} = "{{ option }}"{% endfor %}
+
+@plumber(
+    name="{{ name }}",
+    color='{{ color }}',
+    specificity={{ specificity }},
+)
+def {{ function }}(input_string) -> {{ enum_class_name }}:
+    """Accepts the strings {{ quoted_listed_options }}"""
+    if input_string in [{{ quoted_listed_options }}]:
+        return input_string
+    raise Exception("Must be a member of the collection [{{ quoted_listed_options }}]")
+

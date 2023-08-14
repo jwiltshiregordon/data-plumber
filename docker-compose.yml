@@ -1,0 +1,10 @@
+version: '3'
+services:
+  backend:
+    build: ./backend
+    image: data-plumber-backend:latest
+  nginx:
+    build: ./frontend
+    image: data-plumber-nginx:latest
+    depends_on:
+      - backend

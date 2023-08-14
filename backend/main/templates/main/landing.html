@@ -1,0 +1,42 @@
+{% extends 'main/base.html' %}
+
+{% block main %}
+    <div class="container">
+        <div class="jumbotron text-center mt-4">
+            <h1 class="display-4">Help partners submit their data in the right format</h1>
+            <p class="lead">and correct errors on their own</p>
+        </div>
+        <div class="my-5">
+            <h2 class="mb-3">No more clogs</h2>
+            <ul>
+                <li>Ingest csv files from non-technical team members</li>
+                <li>Spec your format by providing examples</li>
+                <li>Check the plumber's work and make adjustments with a few clicks</li>
+                <li>Get a convenient URL to share so your colleagues can check their data with immediate feedback</li>
+                <li>Use the same parser in production and let the plumber take charge!</li>
+            </ul>
+        </div>
+        <div class="row my-5">
+            <div class="col-lg-6">
+                <h2 class="mb-3">How it works</h2>
+                <ol>
+                    <li>Load your CSV file.</li>
+                    <li>Let Dataplumber.app guess data types for each column.</li>
+                    <li>Customize your column parsers using Python.</li>
+                    <li>Generate a python parser and URL for others to validate their data.</li>
+                </ol>
+            </div>
+            <div class="col-lg-6">
+                <h2 class="mb-3">Features</h2>
+                <ul>
+                    <li>Data never leaves your browser</li>
+                    <li>Automatic data type detection</li>
+                    <li>Supplies generated parser code</li>
+                    <li>Custom python column parsers for those who know how to code</li>
+                    <li>Data validation against an existing format via sharable URL</li>
+                    <li>Open source codebase</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+{% endblock %}

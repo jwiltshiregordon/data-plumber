@@ -1,0 +1,47 @@
+import csv
+from dataclasses import dataclass
+from typing import *  # TODO replace this with the actual imports somehow?
+from enum import Enum
+
+
+headers = {{ headers }}
+identifiers = {{ identifiers }}
+basic_fieldnames = {{ basic_fieldnames }}
+list_fieldnames = {{ list_fieldnames }}
+
+{% for type_source_code in type_source_codes %}
+{{ type_source_code }}
+
+{% endfor %}
+
+{% for parser_code in source_codes %}
+{{ parser_code }}
+
+{% endfor %}
+@dataclass
+class RowDatum:{% for fieldname, annotation in basic_fields %}
+    {{ fieldname }}: {% if annotation == '_empty' %}str{% else %}{{ annotation }}{% endif %}{% endfor %}{% for fieldname, annotation in list_fields %}
+    {{ fieldname }}: List[{% if annotation == '_empty' %}str{% else %}{{ annotation }}{% endif %}]{% endfor %}
+
+
+def parse_csv_file(csv_file_path) -> List[RowDatum]:
+    with open(csv_file_path) as f:
+        # TODO: check for optional columns
+        rows = list(csv.reader(f))
+
+    if sorted(rows[0]) != sorted(headers):
+        raise Exception('Headers are incorrect')
+
+    data = []
+    exceptions = []
+    for row_index, row in enumerate(rows[1:]):
+        try:
+            row_datum = RowDatum({% for fieldname, parser_name, column_index in basic_fieldname_kwargs %}
+                {{ fieldname }}={{ parser_name }}(row[{{ column_index }}]),{% endfor %}{% for fieldname, parser_name, column_indices in list_fieldname_kwargs %}
+                {{ fieldname }}=[{{ parser_name }}(row[i]) for i in {{ column_indices }}],{% endfor %}
+            )
+            data.append(row_datum)
+        except Exception as e:
+            exceptions.append((row_index, str(e)))
+            continue
+    return data, exceptions

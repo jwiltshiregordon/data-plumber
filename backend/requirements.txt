@@ -1,0 +1,9 @@
+asgiref==3.7.2
+boto3==1.28.23
+Django==4.2.3
+django-extensions==3.2.3
+django-webpack-loader==2.0.1
+gunicorn==21.2.0
+packaging==23.1
+python-dotenv==1.0.0
+sqlparse==0.4.4

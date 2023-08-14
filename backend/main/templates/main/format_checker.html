@@ -1,0 +1,31 @@
+{% extends "main/base.html" %}
+{% load webpack_loader %}
+{% load static %}
+
+{% block css %}
+  <link rel="stylesheet" href="{% static "main/format_checker.css" %}">
+{% endblock %}
+
+{% block main %}
+  <h2 class="my-2">Format Checker</h2>
+  <div class="row">
+    <div class="col-md">
+      <h2 id="format-name" class="lead">Format name: {{ data_format.name }}</h2>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md">
+      <div id="format-description" class="lead">Format description: {{ data_format.description }}</div>
+    </div>
+  </div>
+  <div id="app"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+  window.fileURLs = [
+    {url: '{{ parser_url }}', path: 'parser.py'},
+  ];
+  </script>
+  {% render_bundle 'checker' 'js' %}
+{% endblock %}

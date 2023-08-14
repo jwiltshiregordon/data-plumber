@@ -1,0 +1,26 @@
+{% extends "main/base.html" %}
+{% load webpack_loader %}
+{% load static %}
+
+{% block css %}
+  <link rel="stylesheet" href="{% static "main/format_builder.css" %}">
+{% endblock %}
+
+{% block main %}
+  <h2 class="my-2">Format Builder</h2>
+  <form>{% csrf_token %}</form>
+  <div id="app"></div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+  window.fileURLs = [
+    {url: '{% static "main/main.py" %}', path: 'main.py'},
+    {url: '{% static "main/journal.py" %}', path: 'journal.py'},
+    {url: '{% static "main/custom.py" %}', path: 'custom.py'},
+    {url: '{% static "main/dataclasses_parser_template.jinja2" %}', path: 'template.jinja2'},
+    {url: '{% static "main/enum_parser_template.jinja2" %}', path: 'enum_parser_template.jinja2'},
+  ];
+  </script>
+  {% render_bundle 'builder' 'js' %}
+{% endblock %}

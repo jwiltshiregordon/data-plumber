@@ -1,0 +1,84 @@
+{% load static %}
+{% load render_bundle from webpack_loader %}
+
+<!DOCTYPE html>
+{% block html %}
+<html lang="en">
+  <head>
+    {% block head %}
+      <title>DataPlumber</title>
+      <meta charset="utf-8">
+      <link rel="stylesheet" href="{% static 'main/styles.css' %}">
+      <style>
+        @font-face {
+          font-family: 'Mplus 1m';
+          src: url('{% static "fonts/mplus-1m-regular.ttf" %}');
+        }
+      </style>
+      {% block css %}
+      {% endblock %}
+      {% render_bundle 'base' 'css' %}
+
+    {% endblock %}
+  </head>
+  <body>
+    {% block body %}
+    <div class="container-xxl">
+
+      <nav class="navbar navbar-expand-lg bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">DataPlumber</a>
+          <span class="navbar-text"></span>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Build</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Check</a>
+              </li>
+            </ul>
+            <form class="d-flex" role="search">
+              <input class="form-control me-2" type="search" placeholder="Search by format name or id..." aria-label="Search">
+              <button class="btn btn-outline-success" type="submit">Search</button>
+            </form>
+          </div>
+        </div>
+      </nav>
+
+
+
+
+      <div>
+
+        {% block vue %}
+        {% endblock %}
+
+      </div>
+
+
+      {% block main %}
+      {% endblock %}
+
+
+      <footer class="d-flex flex-wrap justify-content-between align-items-center py-3 my-4 border-top">
+        <p class="col-md-4 mb-0 text-muted">&copy; 2023 John Wiltshire-Gordon</p>
+
+        <ul class="nav col-md-4 justify-content-end">
+          <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">Home</a></li>
+          <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">FAQs</a></li>
+          <li class="nav-item"><a href="#" class="nav-link px-2 text-muted">About</a></li>
+        </ul>
+      </footer>
+
+    </div>
+  {% endblock %}
+
+  {% block scripts %}
+  {% endblock %}
+  {% render_bundle 'base' 'js' %}
+  </body>
+</html>
+{% endblock %}

@@ -1,0 +1,151 @@
+:root {
+  --header-char-width: 9px; /* Adjust as needed */
+}
+
+section {
+  padding: 10px;
+}
+
+#columns-section {
+  height: 300px;
+  overflow-y: hidden;
+}
+
+.panel {
+  border-radius: 10px;
+  border-width: 2px;
+  border-color: black;
+  border-style: solid;
+  padding: 20px 10px 10px;
+  overflow-y: hidden;
+}
+
+#columns-panel {
+  background-color: lightgray;
+  border-radius: 10px;
+  border-width: 2px;
+  border-color: black;
+  border-style: solid;
+  display: flex;
+  padding: 20px 10px 10px;
+  overflow-y: hidden;
+  height: 100%;
+
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+#details-section {
+  padding: 10px;
+  height: 500px;
+  overflow-y: hidden;
+}
+
+#details-panel {
+  background-color: rgb(230, 230, 255);
+}
+
+#types-panel {
+  background-color: rgb(255, 230, 230);
+}
+
+.dummy-column {
+  background-color: blue;
+  width: fit-content;
+  white-space: nowrap;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 10px;
+  height: 500px;
+  flex: 0 0 auto;
+  max-width: 100%;
+  cursor: pointer;
+  overflow-x: hidden;
+  font-family: 'Mplus 1m', sans-serif;
+}
+
+.dummy-column-selected {
+  box-shadow: 0 0 10px 10px aliceblue;
+}
+
+.dummy-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  background-color: rgba(200, 200, 200, 0.5);
+  border-radius: 9px;
+  padding-left: 10px;
+  min-height: 45px;
+}
+
+.dummy-column-header-edit {
+  cursor: text;
+}
+
+.no-edit {
+  min-height: unset;
+}
+
+.new-column {
+  background-color: white;
+  border-style: dashed;
+  border-width: 3px;
+  border-color: black;
+}
+
+.new-column:hover {
+  cursor: pointer;
+}
+
+.column-plus {
+  display: flex;
+  justify-content: center;
+  font-size: 50px;
+  padding-top: 60px;
+}
+
+.remove-button {
+  color: darkred;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 3px;
+}
+
+.remove-button:hover {
+  color: black;
+}
+
+.dummy-column-detail {
+  font-size: 30px;
+  overflow-y: hidden;
+  width: 100%;
+  cursor: default;
+}
+
+.types-option {
+  width: 100%;
+  background-color: lightsalmon;
+  margin: 1px;
+}
+
+.add-types-option {
+  text-align: center;
+}
+
+.types-option-selected {
+  background-color: red;
+}
+
+#format-description {
+  height: 100px
+}
+
+p:empty:before {
+  content: ' ';
+  white-space: pre;
+}
+
+.cm-scroller {
+  overflow: auto; min-height: 350px
+}
