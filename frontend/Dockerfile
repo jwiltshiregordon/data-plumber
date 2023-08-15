@@ -9,6 +9,8 @@ RUN wget https://github.com/pyodide/pyodide/releases/download/0.23.4/pyodide-0.2
     tar -xjf pyodide-0.23.4.tar.bz2 -C /var/www/static/pyodide --strip-components=1 && \
     rm pyodide-0.23.4.tar.bz2
 
+RUN npm install && npm run build
+
 # Copy the remaining necessary files
 COPY ./dist /var/www/static/frontend
 COPY ./staticfiles /var/www/static/backend
