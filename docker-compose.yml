@@ -1,7 +1,10 @@
 version: '3'
 services:
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        DEBUG: 'True'
     image: data-plumber-backend:latest
   nginx:
     build: ./frontend
