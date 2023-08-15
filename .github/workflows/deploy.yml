@@ -36,6 +36,8 @@ jobs:
         docker push $ECR_REPOSITORY/data-plumber-backend:latest
         docker tag data-plumber-nginx:latest $ECR_REPOSITORY/data-plumber-nginx:latest
         docker push $ECR_REPOSITORY/data-plumber-nginx:latest
+      with:
+        DEBUG: True
 
     - name: Deploy to ECS
       run: |
