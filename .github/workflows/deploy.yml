@@ -7,11 +7,11 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  ECR_REPOSITORY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPOSITORY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/data-plumber
 
 permissions:
-      id-token: write
-      contents: read
+  id-token: write
+  contents: read
 
 jobs:
   deploy:
@@ -29,6 +29,8 @@ jobs:
         aws-region: ${{ env.AWS_REGION }}
 
     - name: Build and push Docker images
+      env:
+        DEBUG: True
       run: |
         docker compose build
         docker tag data-plumber-backend:latest $ECR_REPOSITORY/data-plumber-backend:latest
@@ -36,8 +38,6 @@ jobs:
         docker push $ECR_REPOSITORY/data-plumber-backend:latest
         docker tag data-plumber-nginx:latest $ECR_REPOSITORY/data-plumber-nginx:latest
         docker push $ECR_REPOSITORY/data-plumber-nginx:latest
-      with:
-        DEBUG: True
 
     - name: Deploy to ECS
       run: |
