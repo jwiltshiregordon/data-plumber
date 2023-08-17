@@ -32,7 +32,6 @@ jobs:
       run: |
         docker compose build
         docker tag data-plumber-backend:latest $ECR_REPOSITORY/data-plumber-backend:latest
-        $(aws ecr get-login --region $AWS_REGION --no-include-email)
         docker push $ECR_REPOSITORY/data-plumber-backend:latest
         docker tag data-plumber-nginx:latest $ECR_REPOSITORY/data-plumber-nginx:latest
         docker push $ECR_REPOSITORY/data-plumber-nginx:latest
