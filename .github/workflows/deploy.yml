@@ -21,6 +21,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Set Docker Tag
+      id: set_tag
+      run: echo "DOCKER_TAG=${GITHUB_SHA::8}" >> $GITHUB_ENV
+
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1.7.0
       with:
@@ -37,11 +41,16 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
         docker compose build
-        docker tag data-plumber-backend:latest $ECR_REGISTRY/data-plumber-backend:latest
-        docker tag data-plumber-nginx:latest $ECR_REGISTRY/data-plumber-nginx:latest
-        docker push $ECR_REGISTRY/data-plumber-backend:latest
-        docker push $ECR_REGISTRY/data-plumber-nginx:latest
+        docker tag data-plumber-backend:latest $ECR_REGISTRY/data-plumber-backend:$GITHUB_ENV
+        docker tag data-plumber-nginx:latest $ECR_REGISTRY/data-plumber-nginx:$GITHUB_ENV
+        docker push $ECR_REGISTRY/data-plumber-backend:$GITHUB_ENV
+        docker push $ECR_REGISTRY/data-plumber-nginx:$GITHUB_ENV
 
     - name: Deploy to ECS
       run: |
-        aws ecs update-service --cluster data-plumber-cluster --service data-plumber-service --force-new-deployment
+        aws cloudformation deploy \
+          --template-file cloudformation.yaml \
+          --stack-name data-plumber-stack \
+          --parameter-overrides \
+            BackendContainerImage=${{ env.ECR_REGISTRY }}/data-plumber-backend:${{ env.DOCKER_TAG }} \
+            NginxContainerImage=${{ env.ECR_REGISTRY }}/data-plumber-nginx:${{ env.DOCKER_TAG }}
