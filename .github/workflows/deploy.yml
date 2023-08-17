@@ -42,8 +42,8 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY/data-plumber-backend:latest
-        docker push $ECR_REGISTRY/$ECR_REPOSITORY/data-plumber-nginx:latest
+        docker push $ECR_REGISTRY/data-plumber-backend:latest
+        docker push $ECR_REGISTRY/data-plumber-nginx:latest
 
     - name: Deploy to ECS
       run: |
