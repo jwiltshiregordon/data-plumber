@@ -1,19 +1,11 @@
-FROM nginx:1.21
+FROM node:16
 
-# Install wget
-RUN apt-get update && \
-    apt-get install -y wget
+WORKDIR /app
 
-# Download, extract, and remove Pyodide
-RUN wget https://github.com/pyodide/pyodide/releases/download/0.23.4/pyodide-0.23.4.tar.bz2 && \
-    tar -xjf pyodide-0.23.4.tar.bz2 -C /var/www/static/pyodide --strip-components=1 && \
-    rm pyodide-0.23.4.tar.bz2
+COPY ./package.json ./package-lock.json ./
+RUN npm install
 
-RUN npm install && npm run build
+COPY . .
+RUN npm run build
 
-# Copy the remaining necessary files
-COPY ./dist /var/www/static/frontend
-COPY ./staticfiles /var/www/static/backend
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
-
-CMD ["nginx", "-g", "daemon off;"]
+VOLUME /var/www/static/frontend

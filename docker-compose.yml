@@ -6,8 +6,27 @@ services:
       args:
         DEBUG: 'True'
     image: data-plumber-backend:latest
-  nginx:
+    volumes:
+      - staticfiles:/app/staticfiles
+
+  frontend:
     build: ./frontend
+    image: data-plumber-frontend:latest
+    volumes:
+      - frontendfiles:/var/www/static/frontend
+
+  nginx:
+    build: ./nginx
     image: data-plumber-nginx:latest
+    ports:
+      - "80:80"
     depends_on:
       - backend
+      - frontend
+    volumes:
+      - staticfiles:/var/www/static/backend
+      - frontendfiles:/var/www/static/frontend
+
+volumes:
+  staticfiles:
+  frontendfiles:
