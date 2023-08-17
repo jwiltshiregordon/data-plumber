@@ -48,14 +48,14 @@ jobs:
 
     - name: Deploy to ECS
       env:
-        BACKEND_IMAGE_URL: ${{ steps.login-ecr.outputs.registry }}/data-plumber-backend:${DOCKER_TAG}
-        NGINX_IMAGE_URL: ${{ steps.login-ecr.outputs.registry }}/data-plumber-nginx:${DOCKER_TAG}
+        BACKEND_IMAGE_URL: ${{ steps.login-ecr.outputs.registry }}/data-plumber-backend
+        NGINX_IMAGE_URL: ${{ steps.login-ecr.outputs.registry }}/data-plumber-nginx
       run: |
         aws cloudformation deploy \
           --template-file cloudformation.yaml \
           --stack-name data-plumber-stack \
           --parameter-overrides \
-            BackendContainerImage=${BACKEND_IMAGE_URL} \
-            NginxContainerImage=${BACKEND_IMAGE_URL} \
+            BackendContainerImage=${BACKEND_IMAGE_URL}:${DOCKER_TAG} \
+            NginxContainerImage=${BACKEND_IMAGE_URL}:${DOCKER_TAG} \
           --capabilities CAPABILITY_IAM
           --debug
