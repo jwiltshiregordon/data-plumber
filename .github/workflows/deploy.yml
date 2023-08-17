@@ -41,10 +41,10 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
         docker compose build
-        docker tag data-plumber-backend:latest $ECR_REGISTRY/data-plumber-backend:$GITHUB_ENV
-        docker tag data-plumber-nginx:latest $ECR_REGISTRY/data-plumber-nginx:$GITHUB_ENV
-        docker push $ECR_REGISTRY/data-plumber-backend:$GITHUB_ENV
-        docker push $ECR_REGISTRY/data-plumber-nginx:$GITHUB_ENV
+        docker tag data-plumber-backend:latest $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG}
+        docker tag data-plumber-nginx:latest $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG}
+        docker push $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG}
+        docker push $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG}
 
     - name: Deploy to ECS
       run: |
