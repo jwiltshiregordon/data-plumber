@@ -46,16 +46,9 @@ jobs:
         docker push $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG}
         docker push $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG}
 
-    - name: Deploy to ECS
-      env:
-        BACKEND_IMAGE_URL: ${{ steps.login-ecr.outputs.registry }}/data-plumber-backend:${{ env.DOCKER_TAG }}
-        NGINX_IMAGE_URL: ${{ steps.login-ecr.outputs.registry }}/data-plumber-nginx:${{ env.DOCKER_TAG }}
-      run: |
-        aws cloudformation deploy \
-          --template-file cloudformation.yaml \
-          --stack-name data-plumber-stack \
-          --parameter-overrides \
-            BackendContainerImage=${BACKEND_IMAGE_URL} \
-            NginxContainerImage=${BACKEND_IMAGE_URL} \
-          --capabilities CAPABILITY_IAM
-          --debug
+    - name: Deploy to AWS CloudFormation
+      uses: aws-actions/aws-cloudformation-github-deploy@v1
+      with:
+        name: data-plumber-stack
+        template: cloudformation.yaml
+        parameter-overrides: BackendContainerImage=${{ steps.login-ecr.outputs.registry }}/data-plumber-backend:${{ env.DOCKER_TAG }},NginxContainerImage=${{ steps.login-ecr.outputs.registry }}/data-plumber-nginx:${{ env.DOCKER_TAG }}
