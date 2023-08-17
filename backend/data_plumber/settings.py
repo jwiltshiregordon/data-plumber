@@ -7,7 +7,7 @@ from botocore.exceptions import ClientError
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
-DEBUG = False if os.getenv("DEBUG") is None else True
+DEBUG = False if os.getenv("DEBUG") is None else os.getenv("DEBUG") == 'True'
 if load_dotenv():
     DEBUG = os.getenv("DEBUG") == 'True'
 
