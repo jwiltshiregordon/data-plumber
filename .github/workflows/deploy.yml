@@ -52,6 +52,7 @@ jobs:
           --template-file cloudformation.yaml \
           --stack-name data-plumber-stack \
           --parameter-overrides \
-            BackendContainerImage=${{ env.ECR_REGISTRY }}/data-plumber-backend:${{ env.DOCKER_TAG }} \
-            NginxContainerImage=${{ env.ECR_REGISTRY }}/data-plumber-nginx:${{ env.DOCKER_TAG }} \
+            BackendContainerImage=${{ env.ECR_REPOSITORY }}/data-plumber-backend:${{ env.DOCKER_TAG }} \
+            NginxContainerImage=${{ env.ECR_REPOSITORY }}/data-plumber-nginx:${{ env.DOCKER_TAG }} \
           --capabilities CAPABILITY_IAM
+          --debug
