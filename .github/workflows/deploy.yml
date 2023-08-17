@@ -39,9 +39,11 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v1
 
     - name: Push images
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        docker push $ECR_REPOSITORY/data-plumber-backend:latest
-        docker push $ECR_REPOSITORY/data-plumber-nginx:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY/data-plumber-backend:latest
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY/data-plumber-nginx:latest
 
     - name: Deploy to ECS
       run: |
