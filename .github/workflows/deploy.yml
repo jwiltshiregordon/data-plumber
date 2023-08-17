@@ -34,6 +34,10 @@ jobs:
         docker tag data-plumber-backend:latest $ECR_REPOSITORY/data-plumber-backend:latest
         docker tag data-plumber-nginx:latest $ECR_REPOSITORY/data-plumber-nginx:latest
 
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
     - name: Push images
       run: |
         docker push $ECR_REPOSITORY/data-plumber-backend:latest
