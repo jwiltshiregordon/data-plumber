@@ -39,7 +39,9 @@ if DEBUG:
     SECRET_KEY = os.getenv("DJANGO_SECRET")
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 else:
+    print("attempting to get the secret from aws")
     SECRET_KEY = get_aws_secret("DATA_PLUMBER_DJANGO_SECRET")
+    print("I got the secret ", SECRET_KEY[:12])
     ALLOWED_HOSTS = ['dataplumber.app']
 
 
