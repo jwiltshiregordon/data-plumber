@@ -11,6 +11,6 @@ RUN mkdir -p /var/www/static/pyodide && \
 RUN cp /tmp/staticfiles /var/www/static/backend
 RUN cp /tmp/frontendfiles /var/www/static/frontend
 
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]
