@@ -21,9 +21,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Install frontend dependencies
+      run: cd frontend && npm install
+
+    - name: Build frontend
+      run: cd frontend && npm run build
+
+    - name: Install backend dependencies
+      run: cd backend && pip install -r requirements.txt
+
+    - name: Build backend
+      run: cd backend && python manage.py collectstatic
+
+    - name: Copy generated files to nginx directory
+      run: |
+        mkdir -p /tmp/staticfiles /tmp/frontendfiles
+        cp frontend/dist/* /tmp/frontendfiles
+        cp backend/staticfiles/* /tmp/staticfiles
+
     - name: Set Docker Tag
       id: set_tag
       run: echo "DOCKER_TAG=${GITHUB_SHA::8}" >> $GITHUB_ENV
+
+    - name: Build nginx Docker image
+      run: |
+        docker build -t $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG} -f nginx/Dockerfile .
+        docker build -t $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG} -f backend/Dockerfile .
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1.7.0
@@ -40,9 +63,6 @@ jobs:
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
-        docker compose build
-        docker tag data-plumber-backend:latest $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG}
-        docker tag data-plumber-nginx:latest $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG}
         docker push $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG}
         docker push $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG}
 

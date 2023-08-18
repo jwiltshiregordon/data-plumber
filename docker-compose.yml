@@ -24,8 +24,8 @@ services:
       - backend
       - frontend
     volumes:
-      - staticfiles:/var/www/static/backend
-      - frontendfiles:/var/www/static/frontend
+      - staticfiles:/tmp/staticfiles
+      - frontendfiles:/tmp/frontendfiles
 
 volumes:
   staticfiles:

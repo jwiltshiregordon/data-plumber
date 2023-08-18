@@ -8,8 +8,9 @@ RUN mkdir -p /var/www/static/pyodide && \
     tar -xjf pyodide-0.23.4.tar.bz2 -C /var/www/static/pyodide --strip-components=1 && \
     rm pyodide-0.23.4.tar.bz2
 
-COPY ./nginx.conf /etc/nginx/conf.d/default.conf
+RUN cp /tmp/staticfiles /var/www/static/backend
+RUN cp /tmp/frontendfiles /var/www/static/frontend
 
-EXPOSE 80
+COPY ./nginx.conf /etc/nginx/conf.d/default.conf
 
 CMD ["nginx", "-g", "daemon off;"]
