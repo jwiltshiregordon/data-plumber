@@ -57,14 +57,14 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
 
-    - name: Build nginx Docker image
+    - name: Build images
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
         docker build -t $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG} -f nginx/Dockerfile nginx/
         docker build -t $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG} --build-arg DEBUG=True -f backend/Dockerfile backend/
 
-    - name: Build and push images
+    - name: Push images
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
