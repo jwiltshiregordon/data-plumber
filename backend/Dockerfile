@@ -1,10 +1,7 @@
 FROM python:3.9-buster
 
-ARG DEBUG
-ENV DEBUG True
-RUN echo DEBUG${DEBUG}
-
 ENV PYTHONUNBUFFERED 1
+ENV DEBUG True
 
 WORKDIR /app
 

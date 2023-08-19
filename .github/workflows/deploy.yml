@@ -62,7 +62,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       run: |
         docker build -t $ECR_REGISTRY/data-plumber-nginx:${DOCKER_TAG} -f nginx/Dockerfile nginx/
-        docker build -t $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG} --build-arg DEBUG=True -f backend/Dockerfile backend/
+        docker build -t $ECR_REGISTRY/data-plumber-backend:${DOCKER_TAG} -f backend/Dockerfile backend/
 
     - name: Push images
       env:
