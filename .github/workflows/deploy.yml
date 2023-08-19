@@ -38,9 +38,9 @@ jobs:
 
     - name: Copy generated files to nginx directory
       run: |
-        mkdir -p nginx/tmp/staticfiles nginx/tmp/frontendfiles
-        cp -r frontend/dist/* nginx/tmp/frontendfiles
-        cp -r backend/staticfiles/* nginx/tmp/staticfiles
+        mkdir -p nginx/staticfiles nginx/frontendfiles
+        cp -r frontend/dist/* nginx/frontendfiles
+        cp -r backend/staticfiles/* nginx/staticfiles
 
     - name: Set Docker Tag
       id: set_tag
