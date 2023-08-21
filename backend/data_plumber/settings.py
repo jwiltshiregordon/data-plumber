@@ -6,16 +6,12 @@ from botocore.exceptions import ClientError
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 DEBUG = False if os.getenv("DEBUG") is None else os.getenv("DEBUG") == 'True'
 if load_dotenv():
     DEBUG = os.getenv("DEBUG") == 'True'
 
 if not DEBUG:
     AWS_REGION_NAME = os.getenv("AWS_REGION_NAME")
-
-print("DEBUG =", DEBUG)
-print("Hello there!")
 
 
 def get_aws_secret(secret_name):
@@ -39,9 +35,7 @@ if DEBUG:
     SECRET_KEY = os.getenv("DJANGO_SECRET")
     ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 else:
-    print("attempting to get the secret from aws")
     SECRET_KEY = get_aws_secret("DATA_PLUMBER_DJANGO_SECRET")
-    print("I got the secret ", SECRET_KEY[:12])
     ALLOWED_HOSTS = ['dataplumber.app']
 
 
@@ -127,6 +121,25 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_ROOT = 'staticfiles'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'main.context_processors.navigation_links',
+            ],
+        },
+    },
+]
+
+
 
 WEBPACK_LOADER = {
     'DEFAULT': {
