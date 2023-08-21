@@ -26,7 +26,7 @@ succeed.
 
 - Local File Processing: Users can input a CSV file, which is processed locally in the browser. No data is uploaded to the server.
 
-- Column Management: Users can add, remove, and select columns from their data. The details of each column are editable, and users can send the Python code for a column's parser to the code editor.
+- Column Management: Users can add, remove, and edit columns. The details of each column are editable, and users can send the Python code for a column's parser to the code editor.
 
 - Code Editor: The application includes a code editor where users can define new parsers or redefine existing parsers using Python. The code is run in the browser using Pyodide.
 
