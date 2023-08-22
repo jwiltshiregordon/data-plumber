@@ -1,0 +1,21 @@
+{% extends 'main/base.html' %}
+
+{% block main %}
+  <div class="container">
+    <div class="d-flex justify-content-center my-5">
+      <form action="" method="post" class="d-flex">
+        {% csrf_token %}
+        <div class="form-group">
+          <input type="text" class="form-control" name="format_id" placeholder="Search by format id...">
+        </div>
+        <button type="submit" class="btn btn-primary mx-2">Search</button>
+      </form>
+    </div>
+    {% if not_found %}
+      <div>No format found with matching id</div>
+    {% endif %}
+    {% if invalid_id %}
+      <div>Please enter a valid id</div>
+    {% endif %}
+  </div>
+{% endblock %}

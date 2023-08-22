@@ -40,8 +40,9 @@
                 <a class="nav-link {% if format_checker_active %}active{% endif %}" {% if format_checker_active %}aria-current="page"{% endif %} href="{{ format_search_url }}">Check</a>
               </li>
             </ul>
-            <form class="d-flex" role="search">
-              <input class="form-control me-2" type="search" placeholder="Search by format id..." aria-label="Search">
+            <form class="d-flex" role="search" action="{{ format_search_url }}" method="post">
+              {% csrf_token %}
+              <input class="form-control me-2" type="search" placeholder="Search by format id..." aria-label="Search" name="format_id">
               <button class="btn btn-outline-success" type="submit">Search</button>
             </form>
           </div>

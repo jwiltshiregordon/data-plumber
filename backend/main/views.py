@@ -1,8 +1,9 @@
-from uuid import uuid4
+from uuid import uuid4, UUID
 
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
+from django.core.exceptions import ValidationError
 
 from .models import DataFormat
 
@@ -39,3 +40,18 @@ def parser_view(request, check_uuid):
     data_format = get_object_or_404(DataFormat, check_uuid=check_uuid)
     file_contents = data_format.generated_parser
     return HttpResponse(file_contents, content_type='text/plain')
+
+
+def search_view(request):
+    context = dict(not_found=False)
+    if request.method == 'POST':
+        try:
+            check_uuid = UUID(request.POST.get("format_id", ''))
+        except (ValueError, ValidationError):
+            context["invalid_id"] = True
+            return render(request, 'main/format_search.html', context)
+        data_format = DataFormat.objects.filter(check_uuid=check_uuid)
+        if data_format.exists():
+            return redirect('format_checker', check_uuid)
+        context["not_found"] = True
+    return render(request, 'main/format_search.html', context)
