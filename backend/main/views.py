@@ -3,7 +3,6 @@ from uuid import uuid4, UUID
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from django.core.exceptions import ValidationError
 
 from .models import DataFormat
 
@@ -47,7 +46,7 @@ def search_view(request):
     if request.method == 'POST':
         try:
             check_uuid = UUID(request.POST.get("format_id", ''))
-        except (ValueError, ValidationError):
+        except ValueError:
             context["invalid_id"] = True
             return render(request, 'main/format_search.html', context)
         data_format = DataFormat.objects.filter(check_uuid=check_uuid)
