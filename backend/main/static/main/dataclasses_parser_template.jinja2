@@ -1,5 +1,5 @@
 import csv
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from typing import *  # TODO replace this with the actual imports somehow?
 from enum import Enum
 
@@ -24,7 +24,7 @@ class RowDatum:{% for fieldname, annotation in basic_fields %}
     {{ fieldname }}: List[{% if annotation == '_empty' %}str{% else %}{{ annotation }}{% endif %}]{% endfor %}
 
 
-def parse_csv_file(csv_file_path) -> List[RowDatum]:
+def parse_csv_file(csv_file_path, serializable=False):
     with open(csv_file_path) as f:
         # TODO: check for optional columns
         rows = list(csv.reader(f))
@@ -40,8 +40,10 @@ def parse_csv_file(csv_file_path) -> List[RowDatum]:
                 {{ fieldname }}={{ parser_name }}(row[{{ column_index }}]),{% endfor %}{% for fieldname, parser_name, column_indices in list_fieldname_kwargs %}
                 {{ fieldname }}=[{{ parser_name }}(row[i]) for i in {{ column_indices }}],{% endfor %}
             )
+            if serializable:
+                row_datum = asdict(row_datum)
             data.append(row_datum)
         except Exception as e:
             exceptions.append((row_index, str(e)))
             continue
-    return data, exceptions
+    return dict(headers=rows[0], rows=data, exceptions=exceptions)

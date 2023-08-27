@@ -78,7 +78,7 @@ export const checkerMachine = createMachine({
         id: "loadingExampleData",
         src: sendExampleToPyodide,
         onDone: {
-          actions: (context) => context.pyodide.send({type: "SUBMIT_JOB", data: {type: "python", python: "from parser import parse_csv_file\nimport json\nfrom dataclasses import asdict\ndata, exceptions = parse_csv_file('example.csv')\nrows = [asdict(row) for row in data]\njson.dumps(dict(rows=rows, exceptions=exceptions))", transition: "PARSED_EXAMPLE", jobInfo: {} }}),
+          actions: (context) => context.pyodide.send({type: "SUBMIT_JOB", data: {type: "python", python: "from parser import parse_csv_file\nimport json\nprint(42)\nfrom dataclasses import asdict\nparser_results = parse_csv_file('example.csv', serializable=True)\njson.dumps(parser_results)", transition: "PARSED_EXAMPLE", jobInfo: {} }}),
           target: "running"
         },
         onError: {
