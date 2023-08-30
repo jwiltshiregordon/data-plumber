@@ -350,6 +350,7 @@ def get_rendered_parser(columns):
 
     context = dict(
         headers=headers,
+        columns=columns,
         identifiers=identifiers,
         used_datatypes=used_datatypes,
         basic_fieldnames=basic_fieldnames,

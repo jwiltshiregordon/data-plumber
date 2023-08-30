@@ -1,5 +1,5 @@
 import csv
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from typing import *  # TODO replace this with the actual imports somehow?
 from enum import Enum
 
@@ -24,9 +24,8 @@ class RowDatum:{% for fieldname, annotation in basic_fields %}
     {{ fieldname }}: List[{% if annotation == '_empty' %}str{% else %}{{ annotation }}{% endif %}]{% endfor %}
 
 
-def parse_csv_file(csv_file_path, serializable=False):
+def parse_csv_file(csv_file_path):
     with open(csv_file_path) as f:
-        # TODO: check for optional columns
         rows = list(csv.reader(f))
 
     if sorted(rows[0]) != sorted(headers):
@@ -46,4 +45,22 @@ def parse_csv_file(csv_file_path, serializable=False):
         except Exception as e:
             exceptions.append((row_index, str(e)))
             continue
-    return dict(headers=rows[0], rows=data, exceptions=exceptions)
+    return dict(rows=data, exceptions=exceptions)
+
+
+def check_csv_file(csv_file_path):
+    with open(csv_file_path) as f:
+        rows = list(csv.reader(f))
+
+    if sorted(rows[0]) != sorted(headers):
+        return dict(headers=rows[0], exceptions=[(0, 0, "Headers are incorrect")])
+
+    exceptions = []
+    for row_index, row in enumerate(rows[1:]):
+        {% for column in columns %}
+        try:
+            {{ column.parser }}(row[{{ loop.index0 }}])
+        except Exception as e:
+            exceptions.append((row_index, {{ loop.index0 }}, str(e)))
+        {% endfor %}
+    return dict(headers=rows[0], rows=rows[1:], exceptions=exceptions)
