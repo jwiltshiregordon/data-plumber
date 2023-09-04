@@ -6,7 +6,12 @@
       </div>
       <div class="col-md lead" v-text="statusMessage"></div>
     </div>
-    <div class="row" v-text="parserResults"></div>
+    <div>{{ parserResults }}</div>
+    <div v-if="parserResults">
+      <EntryEditor
+        :exceptions="parserResults.exceptions"
+      />
+    </div>
   </section>
 </template>
 
@@ -16,6 +21,7 @@ import {pyodideMachine, pyodideWorker} from "@/machines/pyodide";
 import {onMounted, onUnmounted, computed, ref} from "vue";
 import {interpret} from "xstate";
 import {checkerMachine} from "@/machines/checker";
+import EntryEditor from "@/components/EntryEditor.vue";
 
 const machine = useMachine(checkerMachine);
 const { send, state } = machine;
